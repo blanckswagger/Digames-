@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>DIGAMES</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Nunito:wght@400;700;800&display=swap');
+:root{--bg:#0a0f1e;--card-bg:#1a2235;--border:#1f3050;--gold:#fbbf24;--gold2:#d97706;--cyan:#22d3ee;--rose:#f43f5e;--violet:#a78bfa;--green:#34d399;--text:#f0f4ff;--muted:#64748b;--t1:#22d3ee;--t2:#f43f5e}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{background:var(--bg);color:var(--text);font-family:'Nunito',sans-serif;min-height:100dvh}
+.screen{display:none;flex-direction:column;align-items:center;justify-content:center;min-height:100dvh;padding:20px;position:relative}
+.screen.active{display:flex}
+.logo{font-family:'Bebas Neue',sans-serif;font-size:clamp(72px,20vw,120px);letter-spacing:6px;background:linear-gradient(135deg,var(--cyan),var(--gold),var(--rose));-webkit-background-clip:text;-webkit-text-fill-color:transparent;line-height:1;text-align:center}
+.logo-sub{font-size:11px;letter-spacing:5px;color:var(--muted);text-transform:uppercase;margin-bottom:28px}
+.card-preview{display:flex;gap:8px;margin-bottom:32px}
+.pc{width:48px;height:68px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:32px;border:1.5px solid rgba(255,255,255,.1);animation:float 3s ease-in-out infinite}
+.pc:nth-child(1){background:linear-gradient(145deg,#1e3a5f,#0f2040);color:var(--cyan)}
+.pc:nth-child(2){background:linear-gradient(145deg,#3a1e2a,#200f18);color:var(--gold);animation-delay:.2s}
+.pc:nth-child(3){background:linear-gradient(145deg,#1e3a28,#0f2015);color:var(--green);animation-delay:.4s}
+.pc:nth-child(4){background:linear-gradient(145deg,#2e1e3a,#180f20);color:var(--violet);animation-delay:.6s}
+@keyframes float{0%,100%{transform:translateY(0) rotate(-2deg)}50%{transform:translateY(-8px) rotate(2deg)}}
+.btn{width:100%;max-width:300px;padding:16px 24px;border:none;border-radius:14px;cursor:pointer;font-family:'Nunito',sans-serif;font-size:15px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;transition:transform .12s;margin-bottom:12px}
+.btn:active{transform:scale(.96)}
+.btn-gold{background:linear-gradient(135deg,var(--gold),var(--gold2));color:#0a0f1e;box-shadow:0 6px 28px rgba(251,191,36,.35)}
+.btn-outline{background:transparent;color:var(--cyan);border:2px solid var(--cyan)}
+.btn-green{background:linear-gradient(135deg,var(--green),#059669);color:#0a0f1e}
+.screen-title{font-family:'Bebas Neue',sans-serif;font-size:38px;letter-spacing:3px;margin-bottom:4px;text-align:center}
+.screen-sub{color:var(--muted);font-size:12px;letter-spacing:2px;text-align:center;margin-bottom:28px}
+.back-btn{position:absolute;top:18px;left:18px;background:none;border:none;color:var(--muted);font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;cursor:pointer}
+.field{width:100%;max-width:300px;margin-bottom:14px}
+.field label{display:block;font-size:11px;font-weight:700;letter-spacing:2px;color:var(--muted);margin-bottom:7px;text-transform:uppercase}
+.field input{width:100%;padding:14px 16px;background:var(--card-bg);border:2px solid var(--border);border-radius:12px;color:var(--text);font-family:'Nunito',sans-serif;font-size:16px;font-weight:600;outline:none;transition:border-color .2s}
+.field input:focus{border-color:var(--cyan)}
+.err{color:var(--rose);font-size:12px;font-weight:700;margin-top:4px;min-height:18px;text-align:center}
+.spinner{width:40px;height:40px;border:3px solid var(--border);border-top-color:var(--cyan);border-radius:50%;animation:spin 1s linear infinite;margin:20px auto}
+@keyframes spin{to{transform:rotate(360deg)}}
+.pgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;width:100%;max-width:300px;margin:10px 0}
+.pcard{background:var(--card-bg);border:2px solid var(--border);border-radius:12px;padding:12px 10px;display:flex;flex-direction:column;align-items:center;gap:4px;transition:all .3s}
+.pcard.t1{border-color:rgba(34,211,238,.3)}.pcard.t2{border-color:rgba(244,63,94,.3)}
+.pcard.filled.t1{border-color:var(--t1);background:rgba(34,211,238,.07)}
+.pcard.filled.t2{border-color:var(--t2);background:rgba(244,63,94,.07)}
+.pnum{font-size:9px;letter-spacing:2px;color:var(--muted);font-weight:700}
+.pname{font-size:14px;font-weight:800;text-align:center}
+.pteam{font-size:10px;font-weight:700;letter-spacing:1px}
+.t1c{color:var(--t1)}.t2c{color:var(--t2)}
+.dots span{animation:blink 1.2s infinite;display:inline-block}
+.dots span:nth-child(2){animation-delay:.2s}.dots span:nth-child(3){animation-delay:.4s}
+@keyframes blink{0%,80%,100%{opacity:.2}40%{opacity:1}}
+#game{padding:14px;justify-content:flex-start;gap:10px}
+.g-header{width:100%;display:flex;align-items:center;justify-content:space-between;gap:8px}
+.tbadge{flex:1;padding:8px 12px;border-radius:10px;background:var(--card-bg);border:2px solid var(--border);font-size:12px;font-weight:700;color:var(--muted);text-align:center;transition:all .3s}
+.tbadge.mine{border-color:var(--gold);color:var(--gold);background:rgba(251,191,36,.08);animation:pgold 2s infinite}
+@keyframes pgold{0%,100%{box-shadow:0 0 20px rgba(251,191,36,.2)}50%{box-shadow:0 0 32px rgba(251,191,36,.4)}}
+.scores{display:flex;gap:6px}
+.sc{padding:6px 10px;border-radius:8px;font-size:12px;font-weight:800}
+.sc1{background:rgba(34,211,238,.15);color:var(--t1);border:1.5px solid rgba(34,211,238,.3)}
+.sc2{background:rgba(244,63,94,.15);color:var(--t2);border:1.5px solid rgba(244,63,94,.3)}
+.others{width:100%;display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.op{background:var(--card-bg);border:2px solid var(--border);border-radius:12px;padding:10px 6px;display:flex;flex-direction:column;align-items:center;gap:5px}
+.op.ot1{border-color:rgba(34,211,238,.25)}.op.ot2{border-color:rgba(244,63,94,.25)}
+.op.aturn{border-color:var(--gold);box-shadow:0 0 14px rgba(251,191,36,.25)}
+.opn{font-size:10px;font-weight:800;color:var(--muted);text-align:center;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;width:100%}
+.mcs{display:flex;gap:3px}
+.mc{width:14px;height:20px;border-radius:3px;background:linear-gradient(145deg,#1f3050,#111827);border:1px solid #1f3050}
+.hand-box{width:100%;background:var(--card-bg);border:2px solid var(--border);border-radius:16px;padding:14px 12px}
+.hlbl{font-size:10px;font-weight:700;letter-spacing:2px;color:var(--muted);text-transform:uppercase;margin-bottom:12px}
+.cards-row{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+.card{width:70px;height:100px;border-radius:14px;background:linear-gradient(145deg,#1a2845,#0f1a30);border:2px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;position:relative;overflow:hidden;transition:transform .2s,box-shadow .2s,border-color .2s;user-select:none}
+.card::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 30% 25%,rgba(255,255,255,.08),transparent 55%)}
+.cn{font-family:'Bebas Neue',sans-serif;font-size:44px;line-height:1;position:relative;z-index:1}
+.card[data-v="1"] .cn{color:var(--cyan)}.card[data-v="2"] .cn{color:var(--gold)}
+.card[data-v="3"] .cn{color:var(--rose)}.card[data-v="4"] .cn{color:var(--violet)}
+.card.sel{transform:translateY(-14px) scale(1.08);box-shadow:0 20px 48px rgba(251,191,36,.4);border-color:var(--gold)}
+.card.dim{cursor:default;opacity:.7}
+.abox{width:100%;background:var(--card-bg);border:2px solid var(--border);border-radius:14px;padding:12px 14px}
+.albl{font-size:11px;font-weight:700;letter-spacing:1.5px;color:var(--muted);text-transform:uppercase;margin-bottom:10px}
+.dirs{display:flex;gap:8px}
+.dbtn{flex:1;padding:12px 6px;background:transparent;border:2px solid var(--border);border-radius:10px;color:var(--muted);font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;cursor:pointer;transition:all .2s}
+.dbtn.on{border-color:var(--cyan);color:var(--cyan);background:rgba(34,211,238,.08)}
+.cfbtn{width:100%;margin-top:10px;padding:14px;border:none;border-radius:10px;background:linear-gradient(135deg,var(--gold),var(--gold2));color:#0a0f1e;font-family:'Nunito',sans-serif;font-size:14px;font-weight:900;cursor:pointer;display:none}
+.cfbtn.show{display:block}
+.wlbl{text-align:center;color:var(--muted);font-size:12px;padding:4px 0}
+.logbox{width:100%;max-height:68px;overflow-y:auto;background:rgba(0,0,0,.25);border-radius:10px;padding:8px 12px}
+.ll{font-size:11px;color:var(--muted);line-height:1.9}.ll b{color:var(--text);font-weight:700}
+#win{text-align:center;gap:14px}
+.trophy{font-size:80px;animation:tb .7s ease infinite alternate}
+@keyframes tb{from{transform:scale(1) rotate(-5deg)}to{transform:scale(1.12) rotate(5deg)}}
+.wtitle{font-family:'Bebas Neue',sans-serif;font-size:52px;letter-spacing:4px}
+.wwho{font-size:18px;font-weight:800;color:var(--gold)}
+.wdesc{font-size:13px;font-weight:600;color:var(--muted)}
+.wscore{display:flex;gap:16px;justify-content:center;font-size:20px;font-weight:800}
+.ws1{color:var(--t1)}.ws2{color:var(--t2)}
+.toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%) translateY(80px);background:#1f3050;border:2px solid var(--gold);border-radius:12px;padding:12px 22px;font-size:13px;font-weight:700;color:var(--gold);transition:transform .3s;z-index:999;white-space:nowrap}
+.toast.up{transform:translateX(-50%) translateY(0)}
+.server-url{background:rgba(34,211,238,.1);border:1px solid rgba(34,211,238,.3);border-radius:8px;padding:8px 12px;font-size:11px;color:var(--cyan);text-align:center;margin-bottom:16px;max-width:300px;width:100%}
+</style>
+</head>
+<body>
+<div class="toast" id="toast"></div>
+<div class="screen active" id="home">
+  <div class="logo">DIGAMES</div>
+  <div class="logo-sub">Jeu de cartes · 4 joueurs</div>
+  <div class="card-preview">
+    <div class="pc">1</div><div class="pc">2</div><div class="pc">3</div><div class="pc">4</div>
+  </div>
+  <button class="btn btn-gold" onclick="go('screen-connect')">▶ Jouer</button>
+</div>
+<div class="screen" id="screen-connect">
+  <button class="back-btn" onclick="go('home')">← Retour</button>
+  <div class="screen-title">Connexion</div>
+  <div class="screen-sub">Entrez votre prénom</div>
+  <div class="server-url">🌐 Serveur : digames.onrender.com</div>
+  <div class="field">
+    <label>Votre prénom</label>
+    <input id="inp-name" type="text" placeholder="Ex : Ahmed" maxlength="12">
+  </div>
+  <div class="err" id="conn-err"></div>
+  <button class="btn btn-gold" onclick="connectNow()" style="margin-top:10px">Se connecter</button>
+</div>
+<div class="screen" id="screen-connecting">
+  <div class="screen-title">Connexion...</div>
+  <div class="spinner"></div>
+  <div style="color:var(--muted);font-size:13px;text-align:center;margin-top:10px">Connexion au serveur...<br><small>Peut prendre 30 secondes</small></div>
+</div>
+<div class="screen" id="lobby">
+  <div class="screen-title">Salle d'attente</div>
+  <div class="screen-sub" id="lobby-sub">En attente des joueurs...</div>
+  <div class="pgrid" id="pgrid"></div>
+  <div id="host-area" style="display:none;width:100%;max-width:300px;margin-top:8px">
+    <button class="btn btn-green" onclick="startGame()">▶ Lancer la partie</button>
+  </div>
+  <div id="guest-wait" style="color:var(--muted);font-size:12px;text-align:center;margin-top:8px">En attente du Joueur 1...</div>
+</div>
+<div class="screen" id="game">
+  <div class="g-header">
+    <div class="tbadge" id="tbadge">Chargement...</div>
+    <div class="scores">
+      <div class="sc sc1">✦ <span id="s1">0</span></div>
+      <div class="sc sc2">◈ <span id="s2">0</span></div>
+    </div>
+  </div>
+  <div class="others" id="others"></div>
+  <div class="hand-box">
+    <div class="hlbl">Mes cartes</div>
+    <div class="cards-row" id="crow"></div>
+  </div>
+  <div class="abox">
+    <div class="albl" id="albl">Sélectionnez une carte</div>
+    <div class="dirs" id="dirs" style="display:none">
+      <button class="dbtn" id="bl" onclick="pickDir('left')">← Gauche</button>
+      <button class="dbtn" id="br" onclick="pickDir('right')">Droite →</button>
+    </div>
+    <button class="cfbtn" id="cfbtn" onclick="doPass()">✓ Passer la carte</button>
+    <div class="wlbl" id="wlbl" style="display:none">En attente...</div>
+  </div>
+  <div class="logbox" id="logbox"></div>
+</div>
+<div class="screen" id="win">
+  <div class="trophy" id="wtroph">🏆</div>
+  <div class="wtitle" id="wtitle">VICTOIRE</div>
+  <div class="wwho" id="wwho"></div>
+  <div class="wdesc" id="wdesc"></div>
+  <div class="wscore"><div class="ws1">✦ <span id="wsc1">0</span></div><div style="color:var(--muted)">—</div><div class="ws2">◈ <span id="wsc2">0</span></div></div>
+  <button class="btn btn-gold" id="rbtn" onclick="rematch()" style="display:none;margin-top:16px">↺ Rejouer</button>
+  <button class="btn btn-outline" onclick="location.reload()">Quitter</button>
+</div>
+<script>
+const WSS_URL = "wss://digames.onrender.com";
+const S={ws:null,name:'',myIdx:-1,players:[null,null,null,null],hand:[],turn:0,score:[0,0],isHost:false,sel:null,dir:null};
+function go(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active')}
+function toast(m,ms=2800){const t=document.getElementById('toast');t.textContent=m;t.classList.add('up');setTimeout(()=>t.classList.remove('up'),ms)}
+function log(h){const b=document.getElementById('logbox');const d=document.createElement('div');d.className='ll';d.innerHTML=h;b.appendChild(d);b.scrollTop=b.scrollHeight}
+function connectNow(){
+  const name=document.getElementById('inp-name').value.trim();
+  const err=document.getElementById('conn-err');
+  if(!name){err.textContent='Entrez votre prénom';return}
+  S.name=name; err.textContent=''; go('screen-connecting');
+  try{S.ws=new WebSocket(WSS_URL)}catch(e){go('screen-connect');err.textContent='Erreur connexion';return}
+  S.ws.onopen=()=>{S.ws.send(JSON.stringify({type:'join',name}));go('lobby')}
+  S.ws.onmessage=e=>handle(JSON.parse(e.data))
+  S.ws.onerror=()=>{go('screen-connect');err.textContent='Impossible de se connecter — réessayez'}
+  S.ws.onclose=()=>{if(!document.getElementById('home').classList.contains('active'))toast('⚠️ Déconnecté')}
+}
+function handle(msg){
+  switch(msg.type){
+    case 'you_are_host':S.isHost=true;document.getElementById('host-area').style.display='block';document.getElementById('guest-wait').style.display='none';break;
+    case 'lobby_state':S.players=msg.players;S.myIdx=msg.your_index;renderLobby();break;
+    case 'game_start':S.players=msg.players;S.myIdx=msg.your_index;S.hand=msg.hand;S.turn=msg.current_turn;S.score=msg.score||[0,0];S.sel=null;S.dir=null;go('game');renderGame();log(`Partie ! Tour de <b>${S.players[0]}</b>`);break;
+    case 'card_passed':S.hand=msg.hand;S.turn=msg.next_turn;S.sel=null;S.dir=null;renderGame();log(`<b>${msg.from_name}</b> → <b>${msg.to_name}</b>`);break;
+    case 'win':
+      S.score=msg.score;
+      const myT=(S.myIdx===0||S.myIdx===2)?0:1,won=myT===msg.team;
+      const tn=msg.team===0?'Équipe ✦ (J1+J3)':'Équipe ◈ (J2+J4)';
+      document.getElementById('wtroph').textContent=won?'🏆':'😔';
+      document.getElementById('wtitle').textContent=won?'VICTOIRE':'DÉFAITE';
+      document.getElementById('wtitle').style.color=won?'var(--gold)':'var(--muted)';
+      document.getElementById('wwho').textContent=msg.winner_name+' a complété son jeu !';
+      document.getElementById('wdesc').textContent=tn+' remporte la manche';
+      document.getElementById('wsc1').textContent=msg.score[0];
+      document.getElementById('wsc2').textContent=msg.score[1];
+      if(S.isHost)document.getElementById('rbtn').style.display='block';
+      go('win');break;
+    case 'error':toast('⚠️ '+msg.msg);break;
+  }
+}
+function renderLobby(){
+  const g=document.getElementById('pgrid');g.innerHTML='';
+  const tc=[' t1',' t2',' t1',' t2'],tl=['Équipe ✦','Équipe ◈','Équipe ✦','Équipe ◈'],tt=[' t1c',' t2c',' t1c',' t2c'];
+  for(let i=0;i<4;i++){const n=S.players[i],f=n?' filled':'',me=i===S.myIdx?' (moi)':'';
+    g.innerHTML+=`<div class="pcard${tc[i]}${f}"><div class="pnum">JOUEUR ${i+1}</div><div class="pname">${n?n+me:'<span class="dots"><span>·</span><span>·</span><span>·</span></span>'}</div><div class="pteam${tt[i]}">${tl[i]}</div></div>`}
+  const c=S.players.filter(Boolean).length;
+  document.getElementById('lobby-sub').textContent=c===4?'4/4 — Prêt !':`${c}/4 joueurs`}
+function renderGame(){
+  const mine=S.turn===S.myIdx;
+  const tb=document.getElementById('tbadge');
+  tb.textContent=mine?'✦ VOTRE TOUR !':`Tour de ${S.players[S.turn]||'…'}`;
+  tb.className='tbadge'+(mine?' mine':'');
+  document.getElementById('s1').textContent=S.score[0];
+  document.getElementById('s2').textContent=S.score[1];
+  const oel=document.getElementById('others');oel.innerHTML='';
+  [0,1,2,3].filter(i=>i!==S.myIdx).forEach(idx=>{
+    const tc=(idx===0||idx===2)?'ot1':'ot2',ac=S.turn===idx?' aturn':'';
+    oel.innerHTML+=`<div class="op ${tc}${ac}"><div class="opn">${S.players[idx]||'J'+(idx+1)}</div><div class="mcs">${Array(4).fill('<div class="mc"></div>').join('')}</div><div class="opn" style="font-size:9px">${(idx===0||idx===2)?'✦':'◈'}</div></div>`});
+  const cr=document.getElementById('crow');cr.innerHTML='';
+  S.hand.forEach((v,ci)=>{const div=document.createElement('div');div.className='card'+(S.sel===ci?' sel':'')+(mine?'':' dim');div.dataset.v=v;div.innerHTML=`<div class="cn">${v}</div>`;if(mine)div.onclick=()=>pickCard(ci);cr.appendChild(div)});
+  const al=document.getElementById('albl'),dirs=document.getElementById('dirs'),cf=document.getElementById('cfbtn'),wl=document.getElementById('wlbl');
+  if(mine){wl.style.display='none';
+    if(S.sel===null){al.textContent='Sélectionnez une carte';dirs.style.display='none';cf.classList.remove('show')}
+    else if(S.dir===null){al.textContent=`Carte ${S.hand[S.sel]} — direction ?`;dirs.style.display='flex';cf.classList.remove('show');document.getElementById('bl').className='dbtn';document.getElementById('br').className='dbtn'}
+    else{al.textContent=`Carte ${S.hand[S.sel]} → ${S.dir==='left'?'← Gauche':'Droite →'}`;dirs.style.display='flex';cf.classList.add('show')}}
+  else{al.textContent='En attente...';dirs.style.display='none';cf.classList.remove('show');wl.style.display='block'}}
+function pickCard(ci){if(S.turn!==S.myIdx)return;S.sel=(S.sel===ci)?null:ci;S.dir=null;renderGame()}
+function pickDir(d){if(S.sel===null){toast('Choisissez une carte');return}S.dir=d;document.getElementById('bl').className='dbtn'+(d==='left'?' on':'');document.getElementById('br').className='dbtn'+(d==='right'?' on':'');renderGame()}
+function doPass(){if(S.sel===null||S.dir===null)return;const order=[0,1,2,3];const myPos=order.indexOf(S.myIdx);const toPos=S.dir==='left'?(myPos+3)%4:(myPos+1)%4;S.ws.send(JSON.stringify({type:'pass_card',card:S.hand[S.sel],to_index:order[toPos]}));S.sel=null;S.dir=null}
+function startGame(){const c=S.players.filter(Boolean).length;if(c<4){toast(`Attendez 4 joueurs ! (${c}/4)`);return}S.ws.send(JSON.stringify({type:'start'}))}
+function rematch(){S.ws.send(JSON.stringify({type:'rematch'}))}
+</script>
+</body>
+</html>
