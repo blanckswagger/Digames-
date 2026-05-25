@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>DIGAMES</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Nunito:wght@400;700;800;900&display=swap');
+:root{
+  --bg:#050810;--card:#111827;--border:#1f2937;
+  --gold:#fbbf24;--gold2:#d97706;--cyan:#22d3ee;
+  --rose:#f43f5e;--violet:#a78bfa;--green:#34d399;
+  --text:#f0f4ff;--muted:#6b7280;--t1:#22d3ee;--t2:#f43f5e;
+  --felt:#0d3d1a;--felt2:#061f0d;--feltlight:#145228;
+  --feltline:#c9a227;--feltline2:#f0c040;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+body{background:var(--bg);color:var(--text);font-family:'Nunito',sans-serif;min-height:100dvh;overflow-x:hidden}
+.screen{display:none;flex-direction:column;align-items:center;justify-content:center;min-height:100dvh;padding:20px;position:relative;z-index:1}
+.screen.active{display:flex}
+.main-logo{font-family:'Bebas Neue',sans-serif;font-size:clamp(72px,20vw,120px);letter-spacing:8px;background:linear-gradient(135deg,var(--cyan),var(--gold),var(--rose));-webkit-background-clip:text;-webkit-text-fill-color:transparent;line-height:1;text-align:center}
+.main-sub{font-size:11px;letter-spacing:5px;color:var(--muted);text-transform:uppercase;margin-bottom:32px}
+.games-grid{display:flex;flex-direction:column;gap:14px;width:100%;max-width:320px}
+.game-card{background:var(--card);border:2px solid var(--border);border-radius:20px;padding:20px;cursor:pointer;transition:all .2s;position:relative;overflow:hidden}
+.game-card:active{transform:scale(.97)}
+.game-card-top{display:flex;align-items:center;gap:14px;margin-bottom:8px}
+.game-icon{width:52px;height:52px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:26px;flex-shrink:0}
+.gi-blacky{background:linear-gradient(135deg,rgba(34,211,238,.2),rgba(34,211,238,.05));border:1.5px solid rgba(34,211,238,.3)}
+.gi-miro{background:linear-gradient(135deg,rgba(13,61,26,.9),rgba(6,31,13,.9));border:1.5px solid rgba(201,162,39,.4)}
+.game-title{font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:3px}
+.gt-blacky{color:var(--cyan)}.gt-miro{color:var(--feltline)}
+.game-desc{font-size:12px;color:var(--muted);font-weight:600;line-height:1.6}
+.game-badge{position:absolute;top:14px;right:14px;padding:4px 10px;border-radius:20px;font-size:10px;font-weight:800;letter-spacing:1px}
+.b4p{background:rgba(34,211,238,.15);color:var(--cyan);border:1px solid rgba(34,211,238,.3)}
+.b2p{background:rgba(201,162,39,.15);color:var(--feltline);border:1px solid rgba(201,162,39,.3)}
+.btn{width:100%;max-width:320px;padding:16px 24px;border:none;border-radius:14px;cursor:pointer;font-family:'Nunito',sans-serif;font-size:15px;font-weight:900;letter-spacing:1.5px;text-transform:uppercase;transition:transform .12s;margin-bottom:12px}
+.btn:active{transform:scale(.96)}
+.btn-gold{background:linear-gradient(135deg,var(--gold),var(--gold2));color:#050810;box-shadow:0 6px 28px rgba(251,191,36,.35)}
+.btn-cyan{background:linear-gradient(135deg,var(--cyan),#0891b2);color:#050810;box-shadow:0 6px 28px rgba(34,211,238,.3)}
+.btn-felt{background:linear-gradient(135deg,#1a5c2a,#0d3d1a);color:var(--feltline);border:2px solid rgba(201,162,39,.5);box-shadow:0 6px 28px rgba(201,162,39,.15)}
+.btn-green{background:linear-gradient(135deg,var(--green),#059669);color:#050810;box-shadow:0 6px 28px rgba(52,211,153,.3)}
+.btn-oc{background:transparent;color:var(--cyan);border:2px solid var(--cyan)}
+.btn-of{background:transparent;color:var(--feltline);border:2px solid var(--feltline)}
+.screen-title{font-family:'Bebas Neue',sans-serif;font-size:40px;letter-spacing:4px;margin-bottom:4px;text-align:center}
+.screen-sub{color:var(--muted);font-size:12px;letter-spacing:2px;text-align:center;margin-bottom:24px}
+.back-btn{position:absolute;top:18px;left:18px;background:none;border:none;color:var(--muted);font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;cursor:pointer;z-index:10}
+.field{width:100%;max-width:320px;margin-bottom:14px}
+.field label{display:block;font-size:11px;font-weight:800;letter-spacing:2px;color:var(--muted);margin-bottom:7px;text-transform:uppercase}
+.field input{width:100%;padding:14px 16px;background:var(--card);border:2px solid var(--border);border-radius:12px;color:var(--text);font-family:'Nunito',sans-serif;font-size:16px;font-weight:700;outline:none;transition:border-color .2s}
+.field input:focus{border-color:var(--cyan)}
+.err{color:var(--rose);font-size:12px;font-weight:700;margin-top:4px;min-height:18px;text-align:center}
+.spinner{width:44px;height:44px;border:3px solid var(--border);border-top-color:var(--cyan);border-radius:50%;animation:spin 1s linear infinite;margin:20px auto}
+@keyframes spin{to{transform:rotate(360deg)}}
+.code-box{width:100%;max-width:320px;background:var(--card);border:3px solid var(--gold);border-radius:18px;padding:18px;text-align:center;margin:14px 0}
+.code-lbl{font-size:10px;letter-spacing:3px;color:var(--muted);text-transform:uppercase;margin-bottom:8px;font-weight:800}
+.code-val{font-family:'Bebas Neue',sans-serif;font-size:48px;letter-spacing:8px;color:var(--gold)}
+.code-hint{font-size:11px;color:var(--muted);margin-top:6px;font-weight:600}
+.toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(80px);background:#111827;border:2px solid var(--gold);border-radius:12px;padding:12px 20px;font-size:13px;font-weight:800;color:var(--gold);transition:transform .3s;z-index:999;white-space:nowrap}
+.toast.up{transform:translateX(-50%) translateY(0)}
+.pgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;width:100%;max-width:320px;margin:10px 0}
+.pcard{background:var(--card);border:2px solid var(--border);border-radius:12px;padding:12px;display:flex;flex-direction:column;align-items:center;gap:4px;transition:all .3s}
+.pcard.t1{border-color:rgba(34,211,238,.3)}.pcard.t2{border-color:rgba(244,63,94,.3)}
+.pcard.filled.t1{border-color:var(--t1);background:rgba(34,211,238,.07)}
+.pcard.filled.t2{border-color:var(--t2);background:rgba(244,63,94,.07)}
+.pnum{font-size:9px;letter-spacing:2px;color:var(--muted);font-weight:800}
+.pname{font-size:14px;font-weight:900;text-align:center}
+.pteam{font-size:10px;font-weight:800}
+.t1c{color:var(--t1)}.t2c{color:var(--t2)}
+.dots span{animation:blink 1.2s infinite;display:inline-block}
+.dots span:nth-child(2){animation-delay:.2s}.dots span:nth-child(3){animation-delay:.4s}
+@keyframes blink{0%,80%,100%{opacity:.2}40%{opacity:1}}
+#blacky-game{padding:14px;justify-content:flex-start;gap:10px}
+.g-header{width:100%;display:flex;align-items:center;justify-content:space-between;gap:8px}
+.tbadge{flex:1;padding:9px 12px;border-radius:10px;background:var(--card);border:2px solid var(--border);font-size:12px;font-weight:800;color:var(--muted);text-align:center;transition:all .3s}
+.tbadge.mine{border-color:var(--gold);color:var(--gold);background:rgba(251,191,36,.08);animation:gp 2s infinite}
+@keyframes gp{0%,100%{box-shadow:0 0 20px rgba(251,191,36,.2)}50%{box-shadow:0 0 36px rgba(251,191,36,.4)}}
+.scores{display:flex;gap:6px}
+.sc{padding:6px 10px;border-radius:8px;font-size:12px;font-weight:900}
+.sc1{background:rgba(34,211,238,.15);color:var(--t1);border:1.5px solid rgba(34,211,238,.3)}
+.sc2{background:rgba(244,63,94,.15);color:var(--t2);border:1.5px solid rgba(244,63,94,.3)}
+.others{width:100%;display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.op{background:var(--card);border:2px solid var(--border);border-radius:12px;padding:10px 6px;display:flex;flex-direction:column;align-items:center;gap:5px;transition:all .3s}
+.op.ot1{border-color:rgba(34,211,238,.25)}.op.ot2{border-color:rgba(244,63,94,.25)}
+.op.aturn{border-color:var(--gold);box-shadow:0 0 14px rgba(251,191,36,.25)}
+.opn{font-size:10px;font-weight:800;color:var(--muted);text-align:center;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;width:100%}
+.mcs{display:flex;gap:3px}
+.mc{width:14px;height:20px;border-radius:3px;background:linear-gradient(145deg,#2a3a5f,#1a2535);border:1px solid #2a3a5f}
+.hand-box{width:100%;background:var(--card);border:2px solid var(--border);border-radius:16px;padding:14px 12px}
+.hlbl{font-size:10px;font-weight:800;letter-spacing:2px;color:var(--muted);text-transform:uppercase;margin-bottom:12px}
+.cards-row{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+.bcard{width:80px;height:114px;border-radius:16px;background:linear-gradient(145deg,#1e2f50,#0f1a30);border:2px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;position:relative;overflow:hidden;transition:transform .25s cubic-bezier(.34,1.56,.64,1),box-shadow .25s,border-color .25s;user-select:none}
+.bcard::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 30% 25%,rgba(255,255,255,.1),transparent 55%)}
+.cn{font-family:'Bebas Neue',sans-serif;font-size:52px;line-height:1;position:relative;z-index:1}
+.bcard[data-v="1"] .cn{color:var(--cyan);text-shadow:0 0 20px rgba(34,211,238,.5)}
+.bcard[data-v="2"] .cn{color:var(--gold);text-shadow:0 0 20px rgba(251,191,36,.5)}
+.bcard[data-v="3"] .cn{color:var(--rose);text-shadow:0 0 20px rgba(244,63,94,.5)}
+.bcard[data-v="4"] .cn{color:var(--violet);text-shadow:0 0 20px rgba(167,139,250,.5)}
+.bcard.sel{transform:translateY(-16px) scale(1.1);box-shadow:0 20px 48px rgba(251,191,36,.5);border-color:var(--gold);border-width:3px}
+.bcard.dim{cursor:default;opacity:.65}
+.abox{width:100%;background:var(--card);border:2px solid var(--border);border-radius:14px;padding:12px 14px}
+.albl{font-size:11px;font-weight:800;letter-spacing:1.5px;color:var(--muted);text-transform:uppercase;margin-bottom:10px;text-align:center}
+.send-btn{width:100%;padding:14px;border:none;border-radius:10px;background:linear-gradient(135deg,var(--gold),var(--gold2));color:#050810;font-family:'Nunito',sans-serif;font-size:14px;font-weight:900;letter-spacing:1px;cursor:pointer;transition:all .2s;display:none;text-transform:uppercase}
+.send-btn.show{display:block}
+.send-btn:active{transform:scale(.97)}
+.wlbl{text-align:center;color:var(--muted);font-size:12px;padding:4px 0;font-weight:600}
+.clock-hint{text-align:center;font-size:11px;color:var(--cyan);margin-top:6px;font-weight:700}
+.logbox{width:100%;max-height:65px;overflow-y:auto;background:rgba(0,0,0,.25);border-radius:10px;padding:8px 12px}
+.ll{font-size:11px;color:var(--muted);line-height:1.9}.ll b{color:var(--text);font-weight:800}
+#blacky-win{text-align:center;gap:14px}
+.trophy{font-size:80px;animation:tb .7s ease infinite alternate}
+@keyframes tb{from{transform:scale(1) rotate(-6deg)}to{transform:scale(1.14) rotate(6deg)}}
+.wtitle{font-family:'Bebas Neue',sans-serif;font-size:54px;letter-spacing:5px}
+.wwho{font-size:18px;font-weight:900;color:var(--gold)}
+.wdesc{font-size:13px;font-weight:600;color:var(--muted)}
+.wscore{display:flex;gap:18px;justify-content:center;font-size:20px;font-weight:900}
+.ws1{color:var(--t1)}.ws2{color:var(--t2)}
+.cpick-lbl{font-size:11px;font-weight:800;letter-spacing:2px;color:var(--muted);text-transform:uppercase;margin-bottom:10px;width:100%;max-width:320px}
+.cgrid{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;width:100%;max-width:320px;margin-bottom:16px}
+.copt{aspect-ratio:1;border-radius:50%;border:3px solid transparent;cursor:pointer;transition:transform .2s,box-shadow .2s;position:relative}
+.copt:active{transform:scale(.9)}
+.copt.sel{border-color:#fff;box-shadow:0 0 20px rgba(255,255,255,.5);transform:scale(1.15)}
+.copt.taken{opacity:.25;cursor:not-allowed}
+.copt.sel::after{content:'✓';position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:900;color:#fff}
+.mplist{width:100%;max-width:320px;display:flex;flex-direction:column;gap:10px;margin:12px 0}
+.mpitem{display:flex;align-items:center;gap:12px;background:var(--card);border:2px solid var(--border);border-radius:14px;padding:14px 16px}
+.mpdot{width:32px;height:32px;border-radius:50%;flex-shrink:0}
+.mpname{font-size:15px;font-weight:800}
+.mpsub{font-size:12px;color:var(--muted);font-weight:600}
+#miro-game{padding:0;gap:0;justify-content:flex-start;background:linear-gradient(180deg,#020a04 0%,#050810 100%);overflow:hidden;min-height:100dvh}
+.miro-hdr{width:100%;padding:10px 14px;flex-shrink:0;display:flex;align-items:center;justify-content:space-between;gap:10px;background:rgba(0,0,0,.6);backdrop-filter:blur(12px);border-bottom:2px solid rgba(201,162,39,.25)}
+.miro-tbadge{flex:1;padding:8px 12px;border-radius:10px;background:rgba(0,0,0,.5);border:2px solid rgba(201,162,39,.2);font-size:12px;font-weight:800;color:var(--muted);text-align:center;transition:all .3s}
+.miro-tbadge.mine{border-color:var(--feltline);color:var(--feltline);background:rgba(201,162,39,.1);animation:gp 2s infinite}
+.mscores{display:flex;gap:6px}
+.msc{padding:6px 10px;border-radius:8px;font-size:12px;font-weight:900;border:1.5px solid}
+.billiard{flex:1;width:100%;position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center;background:radial-gradient(ellipse 100% 80% at 50% 40%,#1a6b2e 0%,#0e4018 45%,#062210 80%,#020e05 100%)}
+.billiard::before{content:'';position:absolute;inset:0;background:linear-gradient(to right,#3d1f05 0%,transparent 40px,transparent calc(100% - 40px),#3d1f05 100%),linear-gradient(to bottom,#3d1f05 0%,transparent 40px,transparent calc(100% - 40px),#3d1f05 100%);pointer-events:none;z-index:2}
+.billiard::after{content:'';position:absolute;inset:10px;border:3px solid var(--feltline);border-radius:8px;box-shadow:inset 0 0 60px rgba(0,0,0,.4),0 0 30px rgba(201,162,39,.1);pointer-events:none;z-index:2}
+#m-board{position:relative;z-index:3;width:min(290px,80vw);height:min(400px,58vh);filter:drop-shadow(0 12px 40px rgba(0,0,0,.7))}
+.dir-panel{width:100%;flex-shrink:0;padding:10px 16px 14px;background:rgba(0,0,0,.7);backdrop-filter:blur(12px);border-top:2px solid rgba(201,162,39,.25)}
+.dir-info{text-align:center;font-size:11px;font-weight:800;letter-spacing:1.5px;color:var(--muted);text-transform:uppercase;margin-bottom:10px}
+.dir-info .hl{color:var(--feltline)}
+.dir-pad{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;width:fit-content;margin:0 auto}
+.dpad-btn{width:56px;height:52px;border:none;border-radius:12px;font-size:20px;cursor:pointer;background:linear-gradient(145deg,rgba(201,162,39,.2),rgba(201,162,39,.08));border:2px solid rgba(201,162,39,.35);color:var(--feltline);transition:all .15s;user-select:none;display:flex;align-items:center;justify-content:center}
+.dpad-btn:active:not(.off){transform:scale(.88);background:rgba(201,162,39,.4);box-shadow:0 0 20px rgba(201,162,39,.4)}
+.dpad-btn.off{opacity:.18;cursor:not-allowed}
+.dpad-btn.hi{border-color:var(--feltline2);background:rgba(201,162,39,.3);box-shadow:0 0 14px rgba(201,162,39,.35)}
+.dpad-empty{width:56px;height:52px}
+.dir-wait{text-align:center;color:var(--muted);font-size:13px;font-weight:600;padding:6px 0}
+#miro-win{text-align:center;overflow:hidden;background:radial-gradient(ellipse 80% 60% at 50% 40%,#0d3d1a,#020a04)}
+.mwcard{background:linear-gradient(145deg,#0a2010,#04120a);border:3px solid var(--feltline);border-radius:28px;padding:36px 28px;max-width:320px;width:100%;animation:wci .8s cubic-bezier(.34,1.56,.64,1) forwards;box-shadow:0 32px 80px rgba(0,0,0,.8),0 0 60px rgba(201,162,39,.2)}
+@keyframes wci{from{transform:scale(.3) rotateX(45deg);opacity:0}to{transform:scale(1) rotateX(0);opacity:1}}
+.wpion{width:100px;height:100px;margin:0 auto 20px;animation:wp3d 2s ease-in-out infinite alternate}
+@keyframes wp3d{0%{transform:translateY(0) rotateY(0) scale(1)}50%{transform:translateY(-18px) rotateY(180deg) scale(1.1)}100%{transform:translateY(-5px) rotateY(360deg) scale(1.05)}}
+.mwtitle{font-family:'Bebas Neue',sans-serif;font-size:52px;letter-spacing:5px;margin-bottom:6px}
+.mwname{font-size:20px;font-weight:900;margin-bottom:4px}
+.mwsub{font-size:13px;color:var(--muted);font-weight:600;margin-bottom:20px}
+.ptrap{position:fixed;inset:0;pointer-events:none;z-index:10;overflow:hidden}
+.pt{position:absolute;animation:ptf 2s ease-out forwards}
+@keyframes ptf{0%{transform:translate(0,0) scale(1) rotate(0);opacity:1}100%{transform:translate(var(--tx),var(--ty)) scale(0) rotate(720deg);opacity:0}}
+.miro-intro{position:fixed;inset:0;z-index:50;background:radial-gradient(ellipse 100% 80% at 50% 50%,#0e4018,#020e05);display:flex;flex-direction:column;align-items:center;justify-content:center}
+</style>
+</head>
+<body>
+<div class="toast" id="toast"></div>
+<div class="ptrap" id="ptrap"></div>
+
+<!-- HOME -->
+<div class="screen active" id="home">
+  <div class="main-logo">DIGAMES</div>
+  <div class="main-sub">Choisissez votre jeu</div>
+  <div class="games-grid">
+    <div class="game-card" onclick="go('blacky-home')">
+      <div class="game-badge b4p">4 JOUEURS</div>
+      <div class="game-card-top"><div class="game-icon gi-blacky">🃏</div><div><div class="game-title gt-blacky">Blacky Game</div></div></div>
+      <div class="game-desc">Faites circuler les cartes et alignez 4 cartes identiques avec votre équipe !</div>
+    </div>
+    <div class="game-card" onclick="go('miro-home')">
+      <div class="game-badge b2p">2 JOUEURS</div>
+      <div class="game-card-top"><div class="game-icon gi-miro">🎱</div><div><div class="game-title gt-miro">Miro</div></div></div>
+      <div class="game-desc">Déplacez vos pions sur la table et alignez-les en 3 avant votre adversaire !</div>
+    </div>
+  </div>
+</div>
+
+<!-- BLACKY HOME -->
+<div class="screen" id="blacky-home">
+  <button class="back-btn" onclick="go('home')">← Retour</button>
+  <div style="font-family:'Bebas Neue',sans-serif;font-size:52px;letter-spacing:6px;color:var(--cyan);margin-bottom:6px">BLACKY</div>
+  <div class="main-sub">Jeu de cartes · 4 joueurs</div>
+  <div style="display:flex;gap:10px;margin-bottom:32px">
+    <div style="width:52px;height:74px;border-radius:12px;background:linear-gradient(145deg,#1e2f50,#0f1a30);border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:36px;color:var(--cyan)">1</div>
+    <div style="width:52px;height:74px;border-radius:12px;background:linear-gradient(145deg,#3a1e2a,#200f18);border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:36px;color:var(--gold)">2</div>
+    <div style="width:52px;height:74px;border-radius:12px;background:linear-gradient(145deg,#2e1e3a,#180f20);border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:36px;color:var(--violet)">3</div>
+    <div style="width:52px;height:74px;border-radius:12px;background:linear-gradient(145deg,#1e3a28,#0f2015);border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:36px;color:var(--green)">4</div>
+  </div>
+  <button class="btn btn-cyan" onclick="go('blacky-create')">✦ Créer un salon</button>
+  <button class="btn btn-oc" onclick="go('blacky-join')">◈ Rejoindre un salon</button>
+</div>
+
+<!-- BLACKY CREATE -->
+<div class="screen" id="blacky-create">
+  <button class="back-btn" onclick="go('blacky-home')">← Retour</button>
+  <div class="screen-title" style="color:var(--cyan)">Créer</div>
+  <div class="screen-sub">Vous serez Joueur 1</div>
+  <div class="field"><label>Votre prénom</label><input id="bc-name" type="text" placeholder="Ex : Ahmed" maxlength="12" autocomplete="off"></div>
+  <div class="err" id="bc-err"></div>
+  <button class="btn btn-cyan" onclick="blackyCreate()" style="margin-top:10px">Créer →</button>
+</div>
+
+<!-- BLACKY JOIN -->
+<div class="screen" id="blacky-join">
+  <button class="back-btn" onclick="go('blacky-home')">← Retour</button>
+  <div class="screen-title" style="color:var(--cyan)">Rejoindre</div>
+  <div class="screen-sub">Entrez le code du salon</div>
+  <div class="field"><label>Votre prénom</label><input id="bj-name" type="text" placeholder="Ex : Sara" maxlength="12" autocomplete="off"></div>
+  <div class="field"><label>Code (8 chiffres)</label><input id="bj-code" type="number" placeholder="12345678" style="font-size:24px;letter-spacing:4px;text-align:center;font-family:'Bebas Neue',sans-serif"></div>
+  <div class="err" id="bj-err"></div>
+  <button class="btn btn-cyan" onclick="blackyJoin()" style="margin-top:10px">Rejoindre →</button>
+</div>
+
+<!-- CONNECTING -->
+<div class="screen" id="screen-connecting">
+  <div class="screen-title">Connexion...</div>
+  <div class="spinner"></div>
+  <div style="color:var(--muted);font-size:13px;text-align:center;line-height:2">Connexion...<br><small>Peut prendre 30 secondes</small></div>
+</div>
+
+<!-- BLACKY LOBBY -->
+<div class="screen" id="blacky-lobby">
+  <div class="screen-title" style="color:var(--cyan)">Salle d'attente</div>
+  <div class="screen-sub" id="bl-sub">En attente...</div>
+  <div class="code-box"><div class="code-lbl">Code du salon</div><div class="code-val" id="bl-code">——</div><div class="code-hint">Partagez ce code à vos 3 amis !</div></div>
+  <div class="pgrid" id="bl-grid"></div>
+  <div id="bl-host" style="display:none;width:100%;max-width:320px;margin-top:8px"><button class="btn btn-green" onclick="blackyStart()">▶ Lancer</button></div>
+  <div id="bl-guest" style="color:var(--muted);font-size:12px;text-align:center;margin-top:10px;font-weight:600">⏳ En attente du Joueur 1...</div>
+</div>
+
+<!-- BLACKY GAME -->
+<div class="screen" id="blacky-game">
+  <div class="g-header">
+    <div class="tbadge" id="b-tbadge">Chargement...</div>
+    <div class="scores"><div class="sc sc1">✦ <span id="b-s1">0</span></div><div class="sc sc2">◈ <span id="b-s2">0</span></div></div>
+  </div>
+  <div class="others" id="b-others"></div>
+  <div class="hand-box"><div class="hlbl">🃏 Mes cartes</div><div class="cards-row" id="b-crow"></div></div>
+  <div class="abox">
+    <div class="albl" id="b-albl">Sélectionnez une carte</div>
+    <button class="send-btn" id="b-send" onclick="blackyPass()">↻ Envoyer dans le sens horaire</button>
+    <div class="wlbl" id="b-wlbl" style="display:none">⏳ En attente...</div>
+    <div class="clock-hint" id="b-hint"></div>
+  </div>
+  <div class="logbox" id="b-log"></div>
+</div>
+
+<!-- BLACKY WIN -->
+<div class="screen" id="blacky-win">
+  <div class="trophy" id="b-wtroph">🏆</div>
+  <div class="wtitle" id="b-wtitle">VICTOIRE</div>
+  <div class="wwho" id="b-wwho"></div>
+  <div class="wdesc" id="b-wdesc"></div>
+  <div class="wscore"><div class="ws1">✦ <span id="b-wsc1">0</span></div><div style="color:var(--muted)">—</div><div class="ws2">◈ <span id="b-wsc2">0</span></div></div>
+  <button class="btn btn-gold" id="b-rbtn" onclick="blackyRematch()" style="display:none;margin-top:16px">↺ Rejouer</button>
+  <button class="btn btn-oc" onclick="go('home')" style="margin-top:0">🏠 Menu</button>
+</div>
+
+<!-- MIRO HOME -->
+<div class="screen" id="miro-home">
+  <button class="back-btn" onclick="go('home')">← Retour</button>
+  <div style="font-family:'Bebas Neue',sans-serif;font-size:72px;letter-spacing:8px;color:var(--feltline);text-shadow:0 0 30px rgba(201,162,39,.35);margin-bottom:6px">MIRO</div>
+  <div class="main-sub">Jeu de plateau · 2 joueurs</div>
+  <svg width="160" height="140" viewBox="0 0 160 140" style="margin-bottom:24px">
+    <rect x="4" y="4" width="152" height="132" rx="10" fill="#0e4018"/>
+    <rect x="4" y="4" width="152" height="132" rx="10" fill="none" stroke="#c9a227" stroke-width="3"/>
+    <line x1="28" y1="28" x2="132" y2="28" stroke="#c9a227" stroke-width="1.5" opacity=".6"/>
+    <line x1="28" y1="70" x2="132" y2="70" stroke="#c9a227" stroke-width="1.5" opacity=".6"/>
+    <line x1="28" y1="112" x2="132" y2="112" stroke="#c9a227" stroke-width="1.5" opacity=".6"/>
+    <line x1="28" y1="28" x2="28" y2="112" stroke="#c9a227" stroke-width="1.5" opacity=".6"/>
+    <line x1="80" y1="28" x2="80" y2="112" stroke="#c9a227" stroke-width="1.5" opacity=".6"/>
+    <line x1="132" y1="28" x2="132" y2="112" stroke="#c9a227" stroke-width="1.5" opacity=".6"/>
+    <line x1="28" y1="28" x2="132" y2="70" stroke="#c9a227" stroke-width="1" opacity=".4"/>
+    <line x1="132" y1="28" x2="28" y2="70" stroke="#c9a227" stroke-width="1" opacity=".4"/>
+    <line x1="28" y1="70" x2="132" y2="112" stroke="#c9a227" stroke-width="1" opacity=".4"/>
+    <line x1="132" y1="70" x2="28" y2="112" stroke="#c9a227" stroke-width="1" opacity=".4"/>
+    <circle cx="28" cy="28" r="11" fill="#1a1a2e" stroke="#a78bfa" stroke-width="2.5"/>
+    <circle cx="28" cy="28" r="6" fill="none" stroke="#a78bfa" stroke-width="1.5" opacity=".6"/>
+    <circle cx="80" cy="28" r="11" fill="#1a1a2e" stroke="#a78bfa" stroke-width="2.5"/>
+    <circle cx="80" cy="28" r="6" fill="none" stroke="#a78bfa" stroke-width="1.5" opacity=".6"/>
+    <circle cx="132" cy="28" r="11" fill="#1a1a2e" stroke="#a78bfa" stroke-width="2.5"/>
+    <circle cx="132" cy="28" r="6" fill="none" stroke="#a78bfa" stroke-width="1.5" opacity=".6"/>
+    <circle cx="28" cy="112" r="11" fill="#2e1a1a" stroke="#ec4899" stroke-width="2.5"/>
+    <circle cx="28" cy="112" r="6" fill="none" stroke="#ec4899" stroke-width="1.5" opacity=".6"/>
+    <circle cx="80" cy="112" r="11" fill="#2e1a1a" stroke="#ec4899" stroke-width="2.5"/>
+    <circle cx="80" cy="112" r="6" fill="none" stroke="#ec4899" stroke-width="1.5" opacity=".6"/>
+    <circle cx="132" cy="112" r="11" fill="#2e1a1a" stroke="#ec4899" stroke-width="2.5"/>
+    <circle cx="132" cy="112" r="6" fill="none" stroke="#ec4899" stroke-width="1.5" opacity=".6"/>
+  </svg>
+  <button class="btn btn-felt" onclick="go('miro-create')">✦ Créer une partie</button>
+  <button class="btn btn-of" onclick="go('miro-join')">◈ Rejoindre une partie</button>
+</div>
+
+<!-- MIRO CREATE -->
+<div class="screen" id="miro-create">
+  <button class="back-btn" onclick="go('miro-home')">← Retour</button>
+  <div class="screen-title" style="color:var(--feltline)">Créer</div>
+  <div class="screen-sub">Vous jouez en premier</div>
+  <div class="field"><label>Votre prénom</label><input id="mc-name" type="text" placeholder="Ex : Ahmed" maxlength="12" autocomplete="off"></div>
+  <div class="cpick-lbl">Couleur de vos pions</div>
+  <div class="cgrid" id="mc-colors"></div>
+  <div class="err" id="mc-err"></div>
+  <button class="btn btn-felt" onclick="miroCreate()">Créer →</button>
+</div>
+
+<!-- MIRO JOIN -->
+<div class="screen" id="miro-join">
+  <button class="back-btn" onclick="go('miro-home')">← Retour</button>
+  <div class="screen-title" style="color:var(--feltline)">Rejoindre</div>
+  <div class="screen-sub">Entrez le code</div>
+  <div class="field"><label>Votre prénom</label><input id="mj-name" type="text" placeholder="Ex : Sara" maxlength="12" autocomplete="off"></div>
+  <div class="field"><label>Code (8 chiffres)</label><input id="mj-code" type="number" placeholder="12345678" style="font-size:24px;letter-spacing:4px;text-align:center;font-family:'Bebas Neue',sans-serif"></div>
+  <div class="cpick-lbl">Couleur de vos pions</div>
+  <div class="cgrid" id="mj-colors"></div>
+  <div class="err" id="mj-err"></div>
+  <button class="btn btn-felt" onclick="miroJoin()">Rejoindre →</button>
+</div>
+
+<!-- MIRO LOBBY -->
+<div class="screen" id="miro-lobby">
+  <div class="screen-title" style="color:var(--feltline)">En attente...</div>
+  <div class="screen-sub" id="ml-sub">Partagez le code</div>
+  <div class="code-box" style="border-color:var(--feltline)"><div class="code-lbl">Code</div><div class="code-val" id="ml-code" style="color:var(--feltline)">——</div><div class="code-hint">Partagez à votre adversaire !</div></div>
+  <div class="mplist" id="ml-players"></div>
+  <div id="ml-host" style="display:none;width:100%;max-width:320px;margin-top:8px"><button class="btn btn-green" onclick="miroStart()">▶ Lancer</button></div>
+  <div id="ml-guest" style="color:var(--muted);font-size:12px;text-align:center;margin-top:10px;font-weight:600">⏳ En attente du créateur...</div>
+</div>
+
+<!-- MIRO GAME -->
+<div class="screen" id="miro-game">
+  <div class="miro-hdr">
+    <div class="miro-tbadge" id="m-tbadge">Chargement...</div>
+    <div class="mscores" id="m-scores"></div>
+  </div>
+  <div class="billiard">
+    <svg id="m-board" viewBox="0 0 300 400"></svg>
+  </div>
+  <div class="dir-panel">
+    <div class="dir-info" id="dir-info">Appuyez sur un de vos pions</div>
+    <div class="dir-pad" id="dir-pad">
+      <div class="dpad-empty"></div>
+      <button class="dpad-btn off" id="d-up" onclick="mDir('up')">↑</button>
+      <div class="dpad-empty"></div>
+      <button class="dpad-btn off" id="d-left" onclick="mDir('left')">←</button>
+      <div class="dpad-empty" style="display:flex;align-items:center;justify-content:center;font-size:18px;color:rgba(201,162,39,.2)">●</div>
+      <button class="dpad-btn off" id="d-right" onclick="mDir('right')">→</button>
+      <div class="dpad-empty"></div>
+      <button class="dpad-btn off" id="d-down" onclick="mDir('down')">↓</button>
+      <div class="dpad-empty"></div>
+    </div>
+    <div class="dir-wait" id="dir-wait" style="display:none">⏳ Tour de votre adversaire...</div>
+  </div>
+</div>
+
+<!-- MIRO WIN -->
+<div class="screen" id="miro-win" style="background:radial-gradient(ellipse 80% 60% at 50% 40%,#0d3d1a,#020a04)">
+  <div class="mwcard" id="mwcard">
+    <div class="wpion" id="wpion"></div>
+    <div class="mwtitle" id="mwtitle">VICTOIRE</div>
+    <div class="mwname" id="mwname"></div>
+    <div class="mwsub">a aligné ses 3 pions !</div>
+    <button class="btn btn-gold" onclick="go('home')" style="margin-top:16px">🏠 Menu</button>
+    <button class="btn btn-of" id="m-rbtn" onclick="miroRematch()" style="display:none;margin-top:0">↺ Rejouer</button>
+  </div>
+</div>
+
+<script>
+const WSS="wss://digames.onrender.com";
+const BNEXT=[1,2,3,0];
+const MC=[
+  {id:'red',h:'#ef4444',g:'rgba(239,68,68,.7)'},{id:'blue',h:'#3b82f6',g:'rgba(59,130,246,.7)'},
+  {id:'green',h:'#22c55e',g:'rgba(34,197,94,.7)'},{id:'yellow',h:'#eab308',g:'rgba(234,179,8,.7)'},
+  {id:'purple',h:'#a855f7',g:'rgba(168,85,247,.7)'},{id:'pink',h:'#ec4899',g:'rgba(236,72,153,.7)'},
+  {id:'orange',h:'#f97316',g:'rgba(249,115,22,.7)'},{id:'cyan',h:'#06b6d4',g:'rgba(6,182,212,.7)'},
+  {id:'white',h:'#e2e8f0',g:'rgba(226,232,240,.6)'},{id:'teal',h:'#14b8a6',g:'rgba(20,184,166,.7)'},
+];
+const MN=[{x:60,y:40},{x:150,y:40},{x:240,y:40},{x:60,y:200},{x:150,y:200},{x:240,y:200},{x:60,y:360},{x:150,y:360},{x:240,y:360}];
+const MA={0:[1,3],1:[0,2,4],2:[1,5],3:[0,4,6],4:[1,3,5,7],5:[2,4,8],6:[3,7],7:[6,8,4],8:[5,7]};
+function dirOf(f,t){const dx=MN[t].x-MN[f].x,dy=MN[t].y-MN[f].y;return Math.abs(dx)>Math.abs(dy)?(dx>0?'right':'left'):(dy>0?'down':'up')}
+function dirT(f,d){for(const t of MA[f])if(dirOf(f,t)===d&&Mg.board[t]===null)return t;return null}
+const WS={ws:null};
+const Bg={myIdx:-1,name:'',players:[null,null,null,null],hand:[],turn:0,score:[0,0],isHost:false,sel:null};
+const Mg={myIdx:-1,name:'',myP:null,color:null,opColor:null,opName:'',board:new Array(9).fill(null),turn:'p1',score:[0,0],isHost:false,sel:null,selC:null};
+function go(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active')}
+function toast(m,ms=3000){const t=document.getElementById('toast');t.textContent=m;t.classList.add('up');setTimeout(()=>t.classList.remove('up'),ms)}
+function blog(h){const b=document.getElementById('b-log');const d=document.createElement('div');d.className='ll';d.innerHTML=h;b.appendChild(d);b.scrollTop=b.scrollHeight}
+function buildC(gid,sel,taken=[]){
+  const el=document.getElementById(gid);el.innerHTML='';
+  MC.forEach(c=>{
+    const d=document.createElement('div');
+    d.className='copt'+(c.id===sel?' sel':'')+(taken.includes(c.id)?' taken':'');
+    d.style.cssText=`background:radial-gradient(circle at 35% 35%,${c.h}ee,${c.h}88);box-shadow:0 4px 16px ${c.g},inset 0 1px 0 rgba(255,255,255,.3)`;
+    d.onclick=()=>{if(taken.includes(c.id))return;Mg.selC=c.id;buildC(gid,c.id,taken)};
+    el.appendChild(d);
+  });
+}
+buildC('mc-colors',null,[]);buildC('mj-colors',null,[]);
+function initWS(cb){
+  go('screen-connecting');
+  try{WS.ws=new WebSocket(WSS)}catch(e){go('home');toast('❌ Erreur');return}
+  WS.ws.onopen=cb;
+  WS.ws.onmessage=e=>onMsg(JSON.parse(e.data));
+  WS.ws.onerror=()=>{go('home');toast('❌ Impossible de se connecter')};
+  WS.ws.onclose=()=>{if(!document.getElementById('home').classList.contains('active'))toast('⚠️ Déconnecté')};
+}
+function send(d){WS.ws.send(JSON.stringify(d))}
+function onMsg(m){
+  switch(m.type){
+    case 'created':Bg.myIdx=0;Bg.isHost=true;document.getElementById('bl-code').textContent=m.code;document.getElementById('bl-host').style.display='block';document.getElementById('bl-guest').style.display='none';go('blacky-lobby');break;
+    case 'joined':Bg.myIdx=m.your_index;go('blacky-lobby');break;
+    case 'lobby_state':Bg.players=m.players;if(Bg.myIdx===-1)Bg.myIdx=m.your_index;if(m.code)document.getElementById('bl-code').textContent=m.code;renderBLobby();break;
+    case 'game_start':Bg.players=m.players;Bg.myIdx=m.your_index;Bg.hand=m.hand;Bg.turn=m.current_turn;Bg.score=m.score||[0,0];Bg.sel=null;go('blacky-game');renderBGame();blog(`🎮 Partie ! Tour de <b>${Bg.players[0]}</b>`);break;
+    case 'card_passed':Bg.hand=m.hand;Bg.turn=m.next_turn;Bg.sel=null;renderBGame();blog(`<b>${m.from_name}</b> ↻ <b>${m.to_name}</b>`);break;
+    case 'win':
+      Bg.score=m.score;const myT=(Bg.myIdx===0||Bg.myIdx===2)?0:1,won=myT===m.team;
+      document.getElementById('b-wtroph').textContent=won?'🏆':'😔';
+      document.getElementById('b-wtitle').textContent=won?'VICTOIRE !':'DÉFAITE';
+      document.getElementById('b-wtitle').style.color=won?'var(--gold)':'var(--muted)';
+      document.getElementById('b-wwho').textContent=m.winner_name+' a complété son jeu !';
+      document.getElementById('b-wdesc').textContent=(m.team===0?'Équipe ✦':'Équipe ◈')+' remporte !';
+      document.getElementById('b-wsc1').textContent=m.score[0];document.getElementById('b-wsc2').textContent=m.score[1];
+      if(Bg.isHost)document.getElementById('b-rbtn').style.display='block';
+      go('blacky-win');break;
+    case 'miro_created':Mg.myIdx=0;Mg.isHost=true;Mg.myP='p1';document.getElementById('ml-code').textContent=m.code;document.getElementById('ml-host').style.display='block';document.getElementById('ml-guest').style.display='none';go('miro-lobby');break;
+    case 'miro_joined':Mg.myIdx=1;Mg.myP='p2';go('miro-lobby');break;
+    case 'miro_lobby':if(m.code)document.getElementById('ml-code').textContent=m.code;renderMLobby(m.players,m.takenColors||[]);document.getElementById('ml-sub').textContent=m.players.length===2?'✅ 2/2 — Prêt !':'1/2 joueurs';break;
+    case 'miro_start':
+      Mg.board=m.board;Mg.turn=m.turn;Mg.score=m.score||[0,0];Mg.sel=null;
+      const op=m.players.find((_,i)=>i!==Mg.myIdx);Mg.opName=op?.name||'Adversaire';Mg.opColor=op?.color;
+      playIntro();break;
+    case 'miro_move':Mg.board=m.board;Mg.turn=m.turn;Mg.sel=null;renderMBoard();renderDPad();break;
+    case 'miro_win':Mg.score=m.score;showMWin(m.winner,m.winner_name,m.winner_color);break;
+    case 'error':toast('⚠️ '+m.msg);break;
+  }
+}
+function blackyCreate(){const n=document.getElementById('bc-name').value.trim();const e=document.getElementById('bc-err');if(!n){e.textContent='Entrez votre prénom';return}Bg.name=n;Bg.isHost=true;initWS(()=>send({type:'create',name:n}))}
+function blackyJoin(){const n=document.getElementById('bj-name').value.trim();const c=document.getElementById('bj-code').value.trim();const e=document.getElementById('bj-err');if(!n){e.textContent='Entrez votre prénom';return}if(c.length!==8){e.textContent='Code invalide';return}Bg.name=n;Bg.isHost=false;initWS(()=>send({type:'join',name:n,code:c}))}
+function blackyStart(){const c=Bg.players.filter(Boolean).length;if(c<4){toast(`Attendez 4 joueurs (${c}/4)`);return}send({type:'start'})}
+function blackyRematch(){send({type:'rematch'})}
+function renderBLobby(){
+  const g=document.getElementById('bl-grid');g.innerHTML='';
+  const tc=[' t1',' t2',' t1',' t2'],tl=['Équipe ✦','Équipe ◈','Équipe ✦','Équipe ◈'],tt=[' t1c',' t2c',' t1c',' t2c'];
+  for(let i=0;i<4;i++){const n=Bg.players[i],f=n?' filled':'',me=i===Bg.myIdx?' (moi)':'';g.innerHTML+=`<div class="pcard${tc[i]}${f}"><div class="pnum">JOUEUR ${i+1}</div><div class="pname">${n?n+me:'<span class="dots"><span>·</span><span>·</span><span>·</span></span>'}</div><div class="pteam${tt[i]}">${tl[i]}</div></div>`}
+  document.getElementById('bl-sub').textContent=Bg.players.filter(Boolean).length===4?'✅ 4/4 — Prêt !':`${Bg.players.filter(Boolean).length}/4 joueurs`
+}
+function renderBGame(){
+  const mine=Bg.turn===Bg.myIdx;
+  const tb=document.getElementById('b-tbadge');tb.textContent=mine?'✦ VOTRE TOUR !':`Tour de ${Bg.players[Bg.turn]||'…'}`;tb.className='tbadge'+(mine?' mine':'');
+  document.getElementById('b-s1').textContent=Bg.score[0];document.getElementById('b-s2').textContent=Bg.score[1];
+  const oel=document.getElementById('b-others');oel.innerHTML='';
+  [0,1,2,3].filter(i=>i!==Bg.myIdx).forEach(i=>{const tc=(i===0||i===2)?'ot1':'ot2',ac=Bg.turn===i?' aturn':'';oel.innerHTML+=`<div class="op ${tc}${ac}"><div class="opn">${Bg.players[i]||'J'+(i+1)}</div><div class="mcs">${Array(4).fill('<div class="mc"></div>').join('')}</div><div class="opn" style="font-size:9px">${(i===0||i===2)?'✦':'◈'}</div></div>`});
+  const cr=document.getElementById('b-crow');cr.innerHTML='';
+  Bg.hand.forEach((v,ci)=>{const d=document.createElement('div');d.className='bcard'+(Bg.sel===ci?' sel':'')+(mine?'':' dim');d.dataset.v=v;d.innerHTML=`<div class="cn">${v}</div>`;if(mine)d.onclick=()=>pickBCard(ci);cr.appendChild(d)});
+  const al=document.getElementById('b-albl'),sb=document.getElementById('b-send'),wl=document.getElementById('b-wlbl'),ch=document.getElementById('b-hint');
+  if(mine){wl.style.display='none';if(Bg.sel===null){al.textContent='Sélectionnez une carte';sb.classList.remove('show');ch.textContent=''}else{const nxt=Bg.players[BNEXT[Bg.myIdx]]||'J'+(BNEXT[Bg.myIdx]+1);al.textContent=`Carte ${Bg.hand[Bg.sel]} sélectionnée`;sb.classList.add('show');ch.textContent=`↻ → ${nxt}`}}
+  else{al.textContent='En attente...';sb.classList.remove('show');wl.style.display='block';ch.textContent=''}
+}
+function pickBCard(ci){if(Bg.turn!==Bg.myIdx)return;Bg.sel=(Bg.sel===ci)?null:ci;renderBGame()}
+function blackyPass(){if(Bg.sel===null)return;send({type:'pass_card',card:Bg.hand[Bg.sel]});Bg.sel=null}
+function miroCreate(){const n=document.getElementById('mc-name').value.trim();const e=document.getElementById('mc-err');if(!n){e.textContent='Entrez votre prénom';return}if(!Mg.selC){e.textContent='Choisissez une couleur';return}Mg.name=n;Mg.color=Mg.selC;Mg.isHost=true;initWS(()=>send({type:'miro_create',name:n,color:Mg.color}))}
+function miroJoin(){const n=document.getElementById('mj-name').value.trim();const c=document.getElementById('mj-code').value.trim();const e=document.getElementById('mj-err');if(!n){e.textContent='Entrez votre prénom';return}if(c.length!==8){e.textContent='Code invalide';return}if(!Mg.selC){e.textContent='Choisissez une couleur';return}Mg.name=n;Mg.color=Mg.selC;Mg.isHost=false;initWS(()=>send({type:'miro_join',name:n,color:Mg.color,code:c}))}
+function miroStart(){send({type:'miro_start'})}
+function miroRematch(){send({type:'miro_rematch'})}
+function renderMLobby(players,taken){
+  const el=document.getElementById('ml-players');el.innerHTML='';
+  players.forEach((p,i)=>{const c=MC.find(x=>x.id===p.color)||{h:'#888'};el.innerHTML+=`<div class="mpitem"><div class="mpdot" style="background:radial-gradient(circle at 35% 35%,${c.h}ee,${c.h}66);box-shadow:0 0 16px ${c.h}88;border:2px solid ${c.h}66"></div><div><div class="mpname">${p.name}${i===Mg.myIdx?' (moi)':''}</div><div class="mpsub">Joueur ${i+1}</div></div></div>`});
+}
+function getC(p){const cid=p==='p1'?(Mg.myP==='p1'?Mg.color:Mg.opColor):(Mg.myP==='p2'?Mg.color:Mg.opColor);return MC.find(x=>x.id===cid)||{h:'#888',g:'rgba(136,136,136,.5)'}}
+function adjHex(hex,amt){const r=Math.max(0,Math.min(255,parseInt(hex.slice(1,3),16)+amt));const g=Math.max(0,Math.min(255,parseInt(hex.slice(3,5),16)+amt));const b=Math.max(0,Math.min(255,parseInt(hex.slice(5,7),16)+amt));return`#${r.toString(16).padStart(2,'0')}${g.toString(16).padStart(2,'0')}${b.toString(16).padStart(2,'0')}`}
+function draughtSVG(cx,cy,r,c,sel){
+  const dk=adjHex(c.h,-45);const id='g'+Math.random().toString(36).slice(2,8);
+  return`<defs><radialGradient id="${id}" cx="32%" cy="24%" r="72%"><stop offset="0%" style="stop-color:#fff;stop-opacity:.65"/><stop offset="28%" style="stop-color:${c.h}"/><stop offset="100%" style="stop-color:${dk}"/></radialGradient></defs>
+  <ellipse cx="${cx}" cy="${cy+r*.45}" rx="${r*.88}" ry="${r*.22}" fill="rgba(0,0,0,.55)"/>
+  <circle cx="${cx}" cy="${cy}" r="${r}" fill="${dk}" stroke="${sel?'#fff':c.h}" stroke-width="${sel?3:2}"/>
+  <circle cx="${cx}" cy="${cy-r*.07}" r="${r*.87}" fill="url(#${id})"/>
+  <circle cx="${cx}" cy="${cy-r*.07}" r="${r*.58}" fill="none" stroke="${dk}" stroke-width="${r*.13}" opacity=".5"/>
+  <circle cx="${cx-r*.3}" cy="${cy-r*.34}" r="${r*.17}" fill="rgba(255,255,255,.5)"/>
+  ${sel?`<circle cx="${cx}" cy="${cy}" r="${r+9}" fill="none" stroke="#c9a227" stroke-width="2.5" stroke-dasharray="6,4" opacity=".9"/><circle cx="${cx}" cy="${cy}" r="${r+15}" fill="none" stroke="#c9a227" stroke-width="1" opacity=".35"/>`:''}`;
+}
+function renderMBoard(){
+  const svg=document.getElementById('m-board');
+  const mine=Mg.turn===Mg.myP;
+  const sTgts=Mg.sel!==null?MA[Mg.sel].filter(t=>Mg.board[t]===null):[];
+  const lines=[[0,1],[1,2],[3,4],[4,5],[6,7],[7,8],[0,3],[3,6],[1,4],[4,7],[2,5],[5,8],[0,4],[4,8],[2,4],[4,6]];
+  let lsvg=lines.map(([a,b])=>`<line x1="${MN[a].x}" y1="${MN[a].y}" x2="${MN[b].x}" y2="${MN[b].y}" stroke="#c9a227" stroke-width="2.5" stroke-linecap="round" opacity=".65"/>`).join('');
+  let nsvg='';
+  MN.forEach((n,i)=>{
+    const occ=Mg.board[i];
+    if(occ){
+      const c=getC(occ);const isMine=occ===Mg.myP;const isSel=Mg.sel===i;const r=isSel?23:18;
+      const canSel=mine&&isMine&&MA[i].some(t=>Mg.board[t]===null);
+      nsvg+=`<g onclick="mSelP(${i})" style="cursor:${canSel||isSel?'pointer':'default'}">${draughtSVG(n.x,n.y,r,c,isSel)}</g>`;
+    } else {
+      const isTgt=sTgts.includes(i);
+      nsvg+=`<g onclick="${isTgt?`mMoveTo(${i})`:''}" style="cursor:${isTgt?'pointer':'default'}">
+        <circle cx="${n.x}" cy="${n.y}" r="${isTgt?20:10}" fill="${isTgt?'rgba(201,162,39,.18)':'rgba(201,162,39,.07)'}" stroke="${isTgt?'#c9a227':'rgba(201,162,39,.4)'}" stroke-width="${isTgt?2.5:1.5}"/>
+        ${isTgt?`<circle cx="${n.x}" cy="${n.y}" r="7" fill="rgba(201,162,39,.55)"/><circle cx="${n.x}" cy="${n.y}" r="3" fill="rgba(255,255,255,.4)"/>`:`<circle cx="${n.x}" cy="${n.y}" r="3" fill="rgba(201,162,39,.3)"/>`}
+      </g>`;
+    }
+  });
+  svg.innerHTML=lsvg+nsvg;
+  const myC=getC(Mg.myP),opC=getC(Mg.myP==='p1'?'p2':'p1');
+  document.getElementById('m-scores').innerHTML=`<div class="msc" style="color:${myC.h};border-color:${myC.h}55;background:${myC.h}18">${Mg.name} ${Mg.score[Mg.myIdx]}</div><div class="msc" style="color:${opC.h};border-color:${opC.h}55;background:${opC.h}18">${Mg.opName} ${Mg.score[Mg.myIdx===0?1:0]}</div>`;
+  const tb=document.getElementById('m-tbadge');tb.textContent=mine?'✦ VOTRE TOUR !':`Tour de ${Mg.opName}`;tb.className='miro-tbadge'+(mine?' mine':'');
+}
+function renderDPad(){
+  const mine=Mg.turn===Mg.myP;
+  document.getElementById('dir-wait').style.display=mine?'none':'block';
+  document.getElementById('dir-pad').style.display=mine?'grid':'none';
+  if(!mine){document.getElementById('dir-info').innerHTML=`Tour de <span class="hl">${Mg.opName}</span>`;return}
+  if(Mg.sel===null){document.getElementById('dir-info').innerHTML='Appuyez sur un de vos pions';['up','down','left','right'].forEach(d=>document.getElementById('d-'+d).className='dpad-btn off')}
+  else{document.getElementById('dir-info').innerHTML='Choisissez une direction';['up','down','left','right'].forEach(d=>{const b=document.getElementById('d-'+d);b.className='dpad-btn'+(dirT(Mg.sel,d)!==null?' hi':' off')})}
+}
+function mSelP(i){
+  if(Mg.turn!==Mg.myP)return;
+  if(Mg.board[i]!==Mg.myP)return;
+  if(!MA[i].some(t=>Mg.board[t]===null)){toast('Ce pion est bloqué !');return}
+  Mg.sel=(Mg.sel===i)?null:i;renderMBoard();renderDPad();
+}
+function mMoveTo(to){if(Mg.sel===null||Mg.board[to]!==null||!MA[Mg.sel].includes(to))return;send({type:'miro_move',from:Mg.sel,to});Mg.sel=null}
+function mDir(dir){if(Mg.sel===null){toast('Sélectionnez d\'abord un pion !');return}const to=dirT(Mg.sel,dir);if(to===null){toast('Impossible !');return}send({type:'miro_move',from:Mg.sel,to});Mg.sel=null}
+function playIntro(){
+  const myC=getC(Mg.myP);
+  const dk=adjHex(myC.h,-45);
+  const intro=document.createElement('div');intro.className='miro-intro';
+  intro.innerHTML=`<svg width="110" height="110" viewBox="0 0 110 110" style="animation:wci .6s cubic-bezier(.34,1.56,.64,1) forwards">
+    <defs><radialGradient id="ig" cx="32%" cy="24%" r="72%"><stop offset="0%" style="stop-color:#fff;stop-opacity:.65"/><stop offset="28%" style="stop-color:${myC.h}"/><stop offset="100%" style="stop-color:${dk}"/></radialGradient></defs>
+    <ellipse cx="55" cy="92" rx="43" ry="11" fill="rgba(0,0,0,.55)"/>
+    <circle cx="55" cy="52" r="43" fill="${dk}" stroke="${myC.h}" stroke-width="3"/>
+    <circle cx="55" cy="48" r="38" fill="url(#ig)"/>
+    <circle cx="55" cy="48" r="25" fill="none" stroke="${dk}" stroke-width="5.5" opacity=".5"/>
+    <circle cx="37" cy="32" r="8" fill="rgba(255,255,255,.5)"/>
+  </svg>
+  <div style="font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:4px;color:${myC.h};margin-top:14px;text-shadow:0 0 20px ${myC.h}88">VOTRE PION</div>
+  <div style="font-size:12px;color:rgba(201,162,39,.7);margin-top:6px;letter-spacing:2px">C'EST PARTI !</div>`;
+  document.body.appendChild(intro);
+  setTimeout(()=>{document.body.removeChild(intro);go('miro-game');renderMBoard();renderDPad()},1400);
+}
+function showMWin(winner,wname,wcid){
+  const c=MC.find(x=>x.id===wcid)||{h:'#c9a227',g:'rgba(201,162,39,.7)'};
+  const iWon=winner===Mg.myP;
+  const pw=document.getElementById('ptrap');pw.innerHTML='';
+  for(let i=0;i<60;i++){const p=document.createElement('div');p.className='pt';const s=Math.random()*14+6;p.style.cssText=`width:${s}px;height:${s}px;border-radius:${i%3===0?'50%':'4px'};background:${i%3===0?c.h:i%3===1?'#c9a227':'#fff'};left:${Math.random()*100}vw;top:${Math.random()*100}vh;--tx:${(Math.random()-.5)*350}px;--ty:${(Math.random()-.5)*500}px;animation-delay:${Math.random()*.6}s;animation-duration:${1.5+Math.random()*2}s;box-shadow:0 0 8px ${c.h}`;pw.appendChild(p)}
+  const dk=adjHex(c.h,-45);
+  document.getElementById('wpion').innerHTML=`<svg width="100" height="100" viewBox="0 0 100 100">
+    <defs><radialGradient id="wg" cx="32%" cy="24%" r="72%"><stop offset="0%" style="stop-color:#fff;stop-opacity:.65"/><stop offset="28%" style="stop-color:${c.h}"/><stop offset="100%" style="stop-color:${dk}"/></radialGradient></defs>
+    <ellipse cx="50" cy="90" rx="38" ry="10" fill="rgba(0,0,0,.55)"/>
+    <circle cx="50" cy="48" r="39" fill="${dk}" stroke="${c.h}" stroke-width="3"/>
+    <circle cx="50" cy="44" r="34" fill="url(#wg)"/>
+    <circle cx="50" cy="44" r="22" fill="none" stroke="${dk}" stroke-width="4.5" opacity=".5"/>
+    <circle cx="33" cy="28" r="7" fill="rgba(255,255,255,.5)"/>
+  </svg>`;
+  const card=document.getElementById('mwcard');card.style.borderColor=c.h;card.style.boxShadow=`0 32px 80px rgba(0,0,0,.8),0 0 60px ${c.g}`;
+  document.getElementById('mwtitle').textContent=iWon?'🏆 VICTOIRE !':'😔 DÉFAITE';
+  document.getElementById('mwtitle').style.color=iWon?c.h:'#6b7280';
+  document.getElementById('mwname').textContent=wname;document.getElementById('mwname').style.color=c.h;
+  if(Mg.isHost)document.getElementById('m-rbtn').style.display='block';
+  go('miro-win');setTimeout(()=>{pw.innerHTML=''},5000);
+}
+</script>
+</body>
+</html>
